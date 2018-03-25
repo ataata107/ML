@@ -17,6 +17,7 @@ from keras.layers import Convolution2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
+import matplotlib.pyplot as plt
 
 # Initialising the CNN
 classifier = Sequential()
@@ -36,10 +37,10 @@ classifier.add(Flatten())
 
 # Step 4 - Full connection
 classifier.add(Dense(output_dim = 128, activation = 'relu'))
-classifier.add(Dense(output_dim = 1, activation = 'sigmoid'))
+classifier.add(Dense(output_dim = 2, activation = 'softmax'))
 
 # Compiling the CNN
-classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
 # Part 2 - Fitting the CNN to the images
 
@@ -52,16 +53,20 @@ train_datagen = ImageDataGenerator(rescale = 1./255,
 
 test_datagen = ImageDataGenerator(rescale = 1./255)
 
-training_set = train_datagen.flow_from_directory('dataset/training_set',
+training_set = train_datagen.flow_from_directory('training_set',
                                                  target_size = (64, 64),
                                                  batch_size = 32,
-                                                 class_mode = 'binary')
+                                                 classes=['cats','dogs'])
 
-test_set = test_datagen.flow_from_directory('dataset/test_set',
+test_set = test_datagen.flow_from_directory('test_set',
                                             target_size = (64, 64),
                                             batch_size = 32,
-                                            class_mode = 'binary')
+                                            classes = ['cats','dogs'])
 
+
+imgs,labels = next(training_set)
+plt.imshow(imgs[1])
+print(labels[1])
 classifier.fit_generator(training_set,
                          samples_per_epoch = 8000,
                          nb_epoch = 25,
